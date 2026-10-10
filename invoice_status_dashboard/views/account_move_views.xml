@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Keep all inherited columns, accounting buttons and the original action. -->
+    <record id="invoice_dashboard_list" model="ir.ui.view">
+        <field name="name">account.invoice.list.dashboard</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="js_class">invoice_status_dashboard</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
