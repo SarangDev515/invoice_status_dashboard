@@ -5,7 +5,7 @@
     "summary": "Invoice toolbar status counts and inclusive invoice-date filters",
     "license": "LGPL-3",
     'author': 'SARANG T',
-    "images": ["static/description/icon.png"],
+    "images": ["static/description/invoice_status_dashboard_demo.gif"],
     "depends": ["account", "web"],
     "data": ["views/account_move_views.xml"],
     "assets": {
