@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="invoice_status_dashboard.ListView" t-inherit="web.ListView" t-inherit-mode="primary">
+        <xpath expr="//t[@t-set-slot='layout-actions']" position="replace">
+            <t t-set-slot="layout-actions">
+                <div t-if="showInvoiceDashboard" class="o_invoice_toolbar">
+                    <InvoiceDashboard revision="dashboardRevision"/>
+                    <!-- Optional toggler omitted: supported Odoo API keeps search visible. -->
+                    <InvoiceSearchBar autofocus="firstLoad"/>
+                </div>
+                <SearchBar t-else="" toggler="searchBarToggler" autofocus="firstLoad"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-navigation-additional']" position="inside">
+            <div t-if="showInvoiceDashboard and model.isReady and model.root.count === 0" class="o_invoice_empty_pager o_cp_pager text-nowrap" aria-label="No matching invoices">
+                <nav class="o_pager d-flex gap-2 h-100" aria-label="Pager">
+                    <span class="o_pager_counter align-self-center">0 / 0</span>
+                    <span class="btn-group d-print-none">
+                        <button type="button" class="btn btn-secondary px-2 rounded-start" disabled="disabled" aria-label="Previous"><i class="oi oi-chevron-left"/></button>
+                        <button type="button" class="btn btn-secondary px-2 rounded-end" disabled="disabled" aria-label="Next"><i class="oi oi-chevron-right"/></button>
+                    </span>
+                </nav>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-navigation-additional']/t[@t-component]" position="attributes">
+            <attribute name="t-if">!hasSelectedRecords and !showInvoiceDashboard</attribute>
+        </xpath>
+    </t>
+    <t t-name="invoice_status_dashboard.SearchBar" t-inherit="web.SearchBar" t-inherit-mode="primary">
+        <xpath expr="//div[@t-ref='facetContainerRef']" position="attributes">
+            <attribute name="t-on-wheel">onFacetWheel</attribute>
+        </xpath>
+    </t>
+    <t t-name="invoice_status_dashboard.Toolbar">
+        <div class="o_invoice_dashboard d-flex flex-wrap align-items-center gap-2 me-2" role="group" aria-label="Invoice filters" t-att-aria-busy="state.loading ? 'true' : 'false'">
+            <button t-foreach="cards" t-as="card" t-key="card.key" type="button"
+                class="btn o_invoice_status_card" t-attf-class="o_invoice_status_{{card.key}} {{state.status === card.key ? 'active' : ''}}"
+                t-att-aria-pressed="state.status === card.key ? 'true' : 'false'"
+                t-att-title="card.label" t-on-click="() => this.toggleStatus(card.key)">
+                <i t-attf-class="fa {{card.icon}} me-1" aria-hidden="true"/>
+                <span t-out="card.label"/>
+                <strong class="ms-2 o_invoice_count">
+                    <i t-if="state.loading" class="fa fa-spinner fa-spin" aria-label="Loading"/>
+                    <span t-elif="state.error">—</span>
+                    <t t-else="" t-out="state.counts[card.key]"/>
+                </strong>
+            </button>
+            <Dropdown>
+                <button type="button" class="btn btn-secondary o_invoice_date_selector" t-att-class="{'active': !!dateFilter}" t-att-title="state.dateLabel" t-att-aria-label="'Invoice Date: ' + state.dateLabel">
+                    <i class="fa fa-calendar-o" aria-hidden="true"/>
+                </button>
+                <t t-set-slot="content">
+                    <DropdownItem t-foreach="options" t-as="option" t-key="option.key" onSelected="() => this.chooseDate(option.key)">
+                        <span t-out="option.label"/>
+                    </DropdownItem>
+                </t>
+            </Dropdown>
+            <button t-if="state.error" type="button" class="btn btn-link p-1" t-on-click="retry" title="Retry invoice counts">Retry</button>
+        </div>
+    </t>
+    <t t-name="invoice_status_dashboard.DateDialog">
+        <Dialog title.translate="Custom Invoice Date Range" size="'sm'">
+            <div class="d-flex flex-column gap-3">
+                <div><label for="invoice_dashboard_start" class="form-label">Start Date</label>
+                    <DateTimeInput id="'invoice_dashboard_start'" type="'date'" value="state.start" onChange.bind="setStart" onApply.bind="setStart"/>
+                </div>
+                <div><label for="invoice_dashboard_end" class="form-label">End Date</label>
+                    <DateTimeInput id="'invoice_dashboard_end'" type="'date'" value="state.end" onChange.bind="setEnd" onApply.bind="setEnd"/>
+                </div>
+                <div t-if="state.error" class="alert alert-warning mb-0" role="alert" t-out="state.error"/>
+            </div>
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-primary" t-on-click="apply">Apply</button>
+                <button type="button" class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+                <button type="button" class="btn btn-link ms-auto" t-on-click="clear">Clear</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>
