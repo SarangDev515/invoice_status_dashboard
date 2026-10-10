@@ -4,6 +4,7 @@
     "category": "Accounting/Accounting",
     "summary": "Invoice toolbar status counts and inclusive invoice-date filters",
     "license": "LGPL-3",
+    'author': 'SARANG T',
     "depends": ["account", "web"],
     "data": ["views/account_move_views.xml"],
     "assets": {
